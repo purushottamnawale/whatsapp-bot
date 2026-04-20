@@ -1,0 +1,36 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Falcon: npm run send",
+      "type": "shell",
+      "command": "npm",
+      "args": [
+        "run",
+        "send"
+      ],
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "Falcon: npm run check",
+      "type": "shell",
+      "command": "npm",
+      "args": [
+        "run",
+        "check"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "Falcon: Deploy to Server + Set Cron",
+      "type": "shell",
+      "command": "npm",
+      "args": [
+        "run",
+        "deploy"
+      ],
+      "problemMatcher": []
+    }
+  ]
+}

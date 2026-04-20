@@ -1,0 +1,17 @@
+# Node dependencies
+node_modules/
+dist/
+
+# WhatsApp local session/cache
+.wwebjs_auth/
+.wwebjs_cache/
+.wa_word_history.json
+.wa_send.lock
+
+# Environment and logs
+.env
+*.log
+
+# Local secrets
+*.key
+*.pem

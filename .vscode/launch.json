@@ -1,0 +1,55 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Falcon: Send Message (.env defaults)",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "tsx"
+      ],
+      "program": "${workspaceFolder}/send.ts",
+      "cwd": "${workspaceFolder}",
+      "envFile": "${workspaceFolder}/.env",
+      "console": "integratedTerminal",
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
+    },
+    {
+      "name": "Falcon: Send Message (prompt)",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "tsx"
+      ],
+      "program": "${workspaceFolder}/send.ts",
+      "cwd": "${workspaceFolder}",
+      "envFile": "${workspaceFolder}/.env",
+      "args": [
+        "${input:sendTo}",
+        "${input:messageText}"
+      ],
+      "console": "integratedTerminal",
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
+    }
+  ],
+  "inputs": [
+    {
+      "id": "sendTo",
+      "type": "promptString",
+      "description": "Send target: phone number or chat/group name",
+      "default": "Saved Messages"
+    },
+    {
+      "id": "messageText",
+      "type": "promptString",
+      "description": "Message to send",
+      "default": "Hi from Falcon"
+    }
+  ]
+}
