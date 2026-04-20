@@ -48,8 +48,11 @@ function createClient() {
             '--no-sandbox',
             '--disable-setuid-sandbox',
             '--disable-dev-shm-usage',
-            '--no-zygote',
+            '--disable-accelerated-2d-canvas',
             '--no-first-run',
+            '--no-zygote',
+            '--single-process',
+            '--disable-gpu',
             '--no-default-browser-check'
         ],
         timeout: WA_PUPPETEER_LAUNCH_TIMEOUT_MS
