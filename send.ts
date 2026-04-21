@@ -26,6 +26,7 @@ const WA_AI_FAILURE_MESSAGE = (process.env.WA_AI_FAILURE_MESSAGE || DEFAULT_AI_F
 const WA_INIT_DEBUG = parseBoolean(process.env.WA_INIT_DEBUG, true);
 const WA_PUPPETEER_EXECUTABLE_PATH = (process.env.WA_PUPPETEER_EXECUTABLE_PATH || process.env.PUPPETEER_EXECUTABLE_PATH || '').trim();
 const WA_PUPPETEER_LAUNCH_TIMEOUT_MS = parsePositiveInt(process.env.WA_PUPPETEER_LAUNCH_TIMEOUT_MS, 120000);
+const WA_PROTOCOL_TIMEOUT_MS = parsePositiveInt(process.env.WA_PROTOCOL_TIMEOUT_MS, 120000);
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
 
@@ -44,6 +45,7 @@ function createClient() {
 
     const puppeteerOptions: any = {
         headless: WA_HEADLESS,
+        protocolTimeout: WA_PROTOCOL_TIMEOUT_MS,
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
