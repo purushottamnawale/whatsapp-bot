@@ -53,12 +53,14 @@ function createClient() {
             '--disable-accelerated-2d-canvas',
             '--no-first-run',
             '--no-zygote',
-            '--single-process',
             '--disable-gpu',
             '--no-default-browser-check'
         ],
         timeout: WA_PUPPETEER_LAUNCH_TIMEOUT_MS
     };
+
+    // Add a standard Chrome User-Agent to prevent headless detection
+    puppeteerOptions.userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36';
 
     if (executablePath) {
         puppeteerOptions.executablePath = executablePath;
