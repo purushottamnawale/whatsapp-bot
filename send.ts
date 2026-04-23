@@ -59,9 +59,6 @@ function createClient() {
         timeout: WA_PUPPETEER_LAUNCH_TIMEOUT_MS
     };
 
-    // Add a standard Chrome User-Agent to prevent headless detection
-    puppeteerOptions.userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36';
-
     if (executablePath) {
         puppeteerOptions.executablePath = executablePath;
         logDebug('Using browser executable path:', executablePath);
@@ -71,7 +68,12 @@ function createClient() {
 
     return new Client({
         authStrategy: new LocalAuth(authOptions),
-        puppeteer: puppeteerOptions
+        puppeteer: puppeteerOptions,
+        userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+        webVersionCache: {
+            type: 'remote',
+            remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2412.54.html'
+        }
     });
 }
 
