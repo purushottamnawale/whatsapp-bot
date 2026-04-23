@@ -282,8 +282,8 @@ function bindEvents(client) {
         console.log('Client is ready!');
 
         try {
-            const loggedInUser = client.info && client.info.wid ? client.info.wid.user : 'unknown';
-            console.log('Logged in as WhatsApp number:', loggedInUser);
+            const loggedInUser = client.info?.wid?.user || 'unknown';
+            console.log('Logged in as:', loggedInUser);
 
             const target = await resolveTarget(client);
             const chatId = target.chatId;
@@ -294,17 +294,7 @@ function bindEvents(client) {
                 : { text: message, isAi: false, reason: 'WA_USE_AI_RESPONSE is false' };
             const outgoingMessage = generated.text;
 
-            if (WA_USE_AI_RESPONSE && generated.isAi) {
-                console.log('Using AI-generated message content.');
-            } else if (WA_USE_AI_RESPONSE && !generated.isAi) {
-                console.log(`Using plain message fallback (${generated.reason}).`);
-            }
-
-            console.log('Outgoing message text:');
-            console.log('---');
-            console.log(outgoingMessage);
-            console.log('---');
-
+            console.log(`Outgoing message text: ${outgoingMessage}`);
 
             let sentMessage;
             try {
@@ -320,28 +310,31 @@ function bindEvents(client) {
             }
 
             hasSent = true;
-            console.log('Message sent successfully to', target.label);
-            if (sentMessage && sentMessage.id && sentMessage.id._serialized) {
+            console.log('Message sent securely to', target.label);
+            if (sentMessage?.id?._serialized) {
                 console.log('Message id:', sentMessage.id._serialized);
             }
             console.log('Target chat id:', chatId);
 
-        } catch (err) {
-            console.error('Failed to send message:', err && err.message ? err.message : err);
-            console.error('Error stack/detail:', err && err.stack ? err.stack : util.inspect(err, { depth: 6 }));
+        } catch (err: any) {
+            console.error('Failed to send message:', err?.message || err);
+            console.error('Error detail:', err?.stack || util.inspect(err, { depth: 6 }));
         } finally {
             if (hasSent) {
                 if (WA_KEEP_ALIVE) {
                     console.log('Keeping WhatsApp session alive. Press Ctrl+C to stop.');
                     return;
                 }
+                try {
+                    await client.destroy();
+                } catch (e) {}
                 process.exit(0);
             }
 
             try {
                 await client.destroy();
-            } catch (destroyErr) {
-                console.error('Destroy error:', destroyErr && destroyErr.message ? destroyErr.message : destroyErr);
+            } catch (destroyErr: any) {
+                console.error('Session destroy handled passively:', destroyErr?.message || destroyErr);
             }
             process.exit(1);
         }
