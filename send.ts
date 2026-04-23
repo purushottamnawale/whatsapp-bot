@@ -224,18 +224,10 @@ async function generateAiMessage(promptText) {
             };
         }
 
-        return {
-            text: aiText,
-            isAi: true,
-            reason: ''
-        };
-    } catch (err) {
-        console.error('AI generation failed, using plain message:', err && err.message ? err.message : err);
-        return {
-            text: WA_AI_FAILURE_MESSAGE,
-            isAi: false,
-            reason: err && err.message ? err.message : 'AI generation failed'
-        };
+        return { text: aiText, isAi: true, reason: '' };
+    } catch (err: any) {
+        console.error('AI generation failed, using plain message:', err?.message || err);
+        return { text: WA_AI_FAILURE_MESSAGE, isAi: false, reason: err?.message || 'AI generation failed' };
     } finally {
         clearTimeout(timeout);
     }
@@ -260,18 +252,20 @@ function bindEvents(client) {
     });
 
     client.on('authenticated', () => {
-        console.log('WhatsApp authenticated.');
+        console.log('WhatsApp authenticated successfully.');
         logDebug('Authenticated event received.');
     });
 
     client.on('auth_failure', (msg) => {
         console.error('Authentication failed:', msg);
         logDebug('Auth failure payload:', msg);
+        process.exit(1);
     });
 
     client.on('disconnected', (reason) => {
         console.error('Client disconnected:', reason);
         logDebug('Disconnected event reason:', reason);
+        process.exit(1);
     });
 
     client.on('ready', async () => {
@@ -287,25 +281,23 @@ function bindEvents(client) {
 
             const target = await resolveTarget(client);
             const chatId = target.chatId;
-            console.log('Target:', target.label);
 
             const generated = WA_USE_AI_RESPONSE
                 ? await generateAiMessage(message)
                 : { text: message, isAi: false, reason: 'WA_USE_AI_RESPONSE is false' };
+            
             const outgoingMessage = generated.text;
-
-            console.log(`Outgoing message text: ${outgoingMessage}`);
+            console.log(`Outgoing message text:\n---\n${outgoingMessage}\n---`);
 
             let sentMessage;
             try {
                 sentMessage = await client.sendMessage(chatId, outgoingMessage);
-            } catch (primaryErr) {
-                // Transient web session hiccups happen; one quick retry improves reliability.
+            } catch (primaryErr: any) {
                 console.error('Primary send failed, retrying after short delay...');
                 await new Promise((resolve) => setTimeout(resolve, 2000));
                 sentMessage = await client.sendMessage(chatId, outgoingMessage);
                 if (primaryErr) {
-                    console.error('Primary error detail:', primaryErr.stack || util.inspect(primaryErr, { depth: 5 }));
+                    logDebug('Primary error detail:', primaryErr.stack || util.inspect(primaryErr, { depth: 5 }));
                 }
             }
 
