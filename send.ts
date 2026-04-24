@@ -306,6 +306,11 @@ function bindEvents(client) {
             }
             console.log('Target chat id:', chatId);
 
+            // Add a small delay to ensure the message finishes network transmission
+            // before we forcefully terminate the browser session.
+            // 10 seconds is highly reliable for server environments.
+            await new Promise((resolve) => setTimeout(resolve, 10000));
+
         } catch (err: any) {
             console.error('Failed to send message:', err?.message || err);
             console.error('Error detail:', err?.stack || util.inspect(err, { depth: 6 }));
