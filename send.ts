@@ -306,6 +306,15 @@ function bindEvents(client) {
             }
             console.log('Target chat id:', chatId);
 
+            // Mark the chat as unread after sending
+            try {
+                const chat = await client.getChatById(chatId);
+                await chat.markUnread();
+                console.log('Chat marked as unread.');
+            } catch (markErr: any) {
+                console.error('Failed to mark chat as unread:', markErr?.message || markErr);
+            }
+
             // Add a small delay to ensure the message finishes network transmission
             // before we forcefully terminate the browser session.
             // 10 seconds is highly reliable for server environments.
