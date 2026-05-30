@@ -67,3 +67,26 @@ export function parsePositiveInt(rawValue: unknown, fallback: number): number {
     }
     return parsed;
 }
+
+
+export function formatTodayDateWithoutYear(): string {
+    const today = new Intl.DateTimeFormat("en-GB", {
+        day: "numeric",
+        month: "long",
+        timeZone: "Europe/Berlin"
+    }).format(new Date());
+    return today;
+}
+
+export function formatTodayFullDate(): string {
+    const today = new Intl.DateTimeFormat("en-GB", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+        timeZone: "Europe/Berlin"
+    }).format(new Date());
+    return today;
+}
+
+
+

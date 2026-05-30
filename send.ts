@@ -1,4 +1,4 @@
-import { isLikelyPhoneTarget, normalizeNumber, parseBoolean, parsePositiveInt } from './methods';
+import { formatTodayDateWithoutYear, formatTodayFullDate, isLikelyPhoneTarget, normalizeNumber, parseBoolean, parsePositiveInt } from './methods';
 
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
@@ -12,9 +12,13 @@ if (args.includes('-h') || args.includes('--help')) {
 }
 
 const WA_SEND_TO = (args[0] || process.env.WA_SEND_TO || '').trim();
+const PROMPT = process.env.WA_DEFAULT_PROMPT
+    .replaceAll("{{TODAY_DATE}}", formatTodayDateWithoutYear())
+    .replaceAll("{{TODAY_FULL_DATE}}", formatTodayFullDate()
+    );
 const message = args.length > 1
     ? args.slice(1).join(' ')
-    : (process.env.WA_DEFAULT_PROMPT || 'Hello from terminal');
+    : (PROMPT || 'Hello from terminal');
 
 const WA_HEADLESS = String(process.env.WA_HEADLESS || 'true').toLowerCase() !== 'false';
 const WA_AUTH_CLIENT_ID = process.env.WA_AUTH_CLIENT_ID || '';
@@ -283,7 +287,7 @@ function bindEvents(client) {
             const generated = WA_USE_AI_RESPONSE
                 ? await generateAiMessage(message)
                 : { text: message, isAi: false, reason: 'WA_USE_AI_RESPONSE is false' };
-            
+
             const outgoingMessage = generated.text;
             console.log(`Outgoing message text:\n---\n${outgoingMessage}\n---`);
 
@@ -331,7 +335,7 @@ function bindEvents(client) {
                 }
                 try {
                     await client.destroy();
-                } catch (e) {}
+                } catch (e) { }
                 process.exit(0);
             }
 
