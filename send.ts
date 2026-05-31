@@ -3,6 +3,8 @@ import { formatTodayDateWithoutYear, formatTodayFullDate, isLikelyPhoneTarget, n
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
 const util = require('util');
+const fs = require('fs');
+const path = require('path');
 require('dotenv').config();
 
 const args = process.argv.slice(2);
@@ -12,10 +14,18 @@ if (args.includes('-h') || args.includes('--help')) {
 }
 
 const WA_SEND_TO = (args[0] || process.env.WA_SEND_TO || '').trim();
-const PROMPT = process.env.WA_DEFAULT_PROMPT
+const promptFilePath = path.resolve(__dirname, 'prompt.txt');
+const rawPrompt = (() => {
+    try {
+        return fs.readFileSync(promptFilePath, 'utf-8').trim();
+    } catch (err: any) {
+        console.error('Failed to read prompt.txt:', err?.message || err);
+        return '';
+    }
+})();
+const PROMPT = rawPrompt
     .replaceAll("{{TODAY_DATE}}", formatTodayDateWithoutYear())
-    .replaceAll("{{TODAY_FULL_DATE}}", formatTodayFullDate()
-    );
+    .replaceAll("{{TODAY_FULL_DATE}}", formatTodayFullDate());
 const message = args.length > 1
     ? args.slice(1).join(' ')
     : (PROMPT || 'Hello from terminal');

@@ -1,0 +1,138 @@
+The date for this message is {{TODAY_DATE}}.
+
+{{TODAY_DATE}} is the ONLY valid date for this task.
+
+Use this exact date for all historical events, anniversaries, discoveries, celebrations, facts, and output formatting.
+
+Do NOT use your system date, current date, knowledge-cutoff date, or any other date.
+
+Do NOT calculate, infer, estimate, replace, modify, or reinterpret the provided date.
+
+Choose a topic related to an event, discovery, historical occurrence, anniversary, celebration, notable birth, notable death, or interesting fact that happened on this exact calendar date in history.
+
+Before selecting the topic, verify that it genuinely occurred on {{TODAY_DATE}} (same day and month).
+
+If multiple relevant topics exist, choose the single most historically significant topic based on:
+- Global impact
+- Number of people affected
+- Long-term historical influence
+- Scientific significance
+- Cultural significance
+- Societal significance
+
+First, provide a brief English context paragraph with relevant emojis explaining the topic and its significance.
+
+Then write exactly 5 complete German sentences about the topic.
+
+Directly below each German sentence, provide its exact English translation, preserving the meaning sentence-by-sentence.
+
+Afterward, identify the 10 most difficult German words that appear in the German sentences.
+
+All vocabulary words MUST be taken directly from the German sentences.
+
+For each vocabulary entry provide:
+
+- German word (include article only if the word is a noun)
+- English translation
+- Concise English meaning
+- IPA pronunciation
+- Part of speech
+- Grammatical gender (masculine, feminine, neuter, or N/A)
+- Plural form (for nouns; otherwise write "N/A")
+
+Before generating the final output, perform a complete internal verification for:
+- Correct date usage
+- Historical accuracy
+- Factual accuracy
+- Grammar
+- Spelling
+- Punctuation
+- Natural German usage
+- Translation accuracy
+- Consistency
+- Formatting
+- Names
+- Dates
+
+Verify once more that the selected topic genuinely relates to {{TODAY_DATE}}.
+
+Ensure all content is accurate, coherent, and free of errors.
+
+Output ONLY the structure below.
+
+Do NOT include:
+- Introductions
+- Explanations
+- Notes
+- Comments
+- Sources
+- Citations
+- References
+- Markdown code blocks
+- Closing remarks
+- Any text outside the required format
+
+*10 German Words of the Day*
+
+*{{TODAY_FULL_DATE}}:*
+
+[English Context Paragraph]
+
+🇩🇪 [German Sentence 1]
+_🇬🇧 [English Translation 1]_
+
+🇩🇪 [German Sentence 2]
+_🇬🇧 [English Translation 2]_
+
+🇩🇪 [German Sentence 3]
+_🇬🇧 [English Translation 3]_
+
+🇩🇪 [German Sentence 4]
+_🇬🇧 [English Translation 4]_
+
+🇩🇪 [German Sentence 5]
+_🇬🇧 [English Translation 5]_
+
+━━━━━━━━━━━━━━
+
+📚 Vocabulary Breakdown
+
+*1. [German Word] - [English Translation]*
+*[English Meaning]*
+([IPA], [Part Of Speech], [Gender], [Plural Form])
+
+*2. [German Word] - [English Translation]*
+*[English Meaning]*
+([IPA], [Part Of Speech], [Gender], [Plural Form])
+
+*3. [German Word] - [English Translation]*
+*[English Meaning]*
+([IPA], [Part Of Speech], [Gender], [Plural Form])
+
+*4. [German Word] - [English Translation]*
+*[English Meaning]*
+([IPA], [Part Of Speech], [Gender], [Plural Form])
+
+*5. [German Word] - [English Translation]*
+*[English Meaning]*
+([IPA], [Part Of Speech], [Gender], [Plural Form])
+
+*6. [German Word] - [English Translation]*
+*[English Meaning]*
+([IPA], [Part Of Speech], [Gender], [Plural Form])
+
+*7. [German Word] - [English Translation]*
+*[English Meaning]*
+([IPA], [Part Of Speech], [Gender], [Plural Form])
+
+*8. [German Word] - [English Translation]*
+*[English Meaning]*
+([IPA], [Part Of Speech], [Gender], [Plural Form])
+
+*9. [German Word] - [English Translation]*
+*[English Meaning]*
+([IPA], [Part Of Speech], [Gender], [Plural Form])
+
+*10. [German Word] - [English Translation]*
+*[English Meaning]*
+([IPA], [Part Of Speech], [Gender], [Plural Form])
