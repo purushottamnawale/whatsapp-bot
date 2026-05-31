@@ -37,8 +37,8 @@ For each vocabulary entry provide:
 - Concise English meaning
 - IPA pronunciation
 - Part of speech
-- Grammatical gender (masculine, feminine, neuter, or N/A)
-- Plural form (for nouns; otherwise write "N/A")
+- Grammatical gender (Masculine, Feminine, Neuter, or NA)
+- Plural form (for nouns, include the article; otherwise write "NA")
 
 Before generating the final output, perform a complete internal verification for:
 - Correct date usage
@@ -76,63 +76,63 @@ Do NOT include:
 
 *{{TODAY_FULL_DATE}}:*
 
-[English Context Paragraph]
+{{English Context Paragraph}}
 
-🇩🇪 [German Sentence 1]
-_🇬🇧 [English Translation 1]_
+🇩🇪 {{German Sentence 1}}
+_🇬🇧 {{English Translation 1}}_
 
-🇩🇪 [German Sentence 2]
-_🇬🇧 [English Translation 2]_
+🇩🇪 {{German Sentence 2}}
+_🇬🇧 {{English Translation 2}}_
 
-🇩🇪 [German Sentence 3]
-_🇬🇧 [English Translation 3]_
+🇩🇪 {{German Sentence 3}}
+_🇬🇧 {{English Translation 3}}_
 
-🇩🇪 [German Sentence 4]
-_🇬🇧 [English Translation 4]_
+🇩🇪 {{German Sentence 4}}
+_🇬🇧 {{English Translation 4}}_
 
-🇩🇪 [German Sentence 5]
-_🇬🇧 [English Translation 5]_
+🇩🇪 {{German Sentence 5}}
+_🇬🇧 {{English Translation 5}}_
 
 ━━━━━━━━━━━━━━
 
 📚 Vocabulary Breakdown
 
-*1. [German Word] - [English Translation]*
-*[English Meaning]*
-([IPA], [Part Of Speech], [Gender], [Plural Form])
+*1. {{German Word}} - {{English Translation}}*
+_{{English Meaning}}_
+{{IPA}} • {{Part Of Speech}} • {{Gender}} • {{Plural Form}}
 
-*2. [German Word] - [English Translation]*
-*[English Meaning]*
-([IPA], [Part Of Speech], [Gender], [Plural Form])
+*2. {{German Word}} - {{English Translation}}*
+_{{English Meaning}}_
+{{IPA}} • {{Part Of Speech}} • {{Gender}} • {{Plural Form}}
 
-*3. [German Word] - [English Translation]*
-*[English Meaning]*
-([IPA], [Part Of Speech], [Gender], [Plural Form])
+*3. {{German Word}} - {{English Translation}}*
+_{{English Meaning}}_
+{{IPA}} • {{Part Of Speech}} • {{Gender}} • {{Plural Form}}
 
-*4. [German Word] - [English Translation]*
-*[English Meaning]*
-([IPA], [Part Of Speech], [Gender], [Plural Form])
+*4. {{German Word}} - {{English Translation}}*
+_{{English Meaning}}_
+{{IPA}} • {{Part Of Speech}} • {{Gender}} • {{Plural Form}}
 
-*5. [German Word] - [English Translation]*
-*[English Meaning]*
-([IPA], [Part Of Speech], [Gender], [Plural Form])
+*5. {{German Word}} - {{English Translation}}*
+_{{English Meaning}}_
+{{IPA}} • {{Part Of Speech}} • {{Gender}} • {{Plural Form}}
 
-*6. [German Word] - [English Translation]*
-*[English Meaning]*
-([IPA], [Part Of Speech], [Gender], [Plural Form])
+*6. {{German Word}} - {{English Translation}}*
+_{{English Meaning}}_
+{{IPA}} • {{Part Of Speech}} • {{Gender}} • {{Plural Form}}
 
-*7. [German Word] - [English Translation]*
-*[English Meaning]*
-([IPA], [Part Of Speech], [Gender], [Plural Form])
+*7. {{German Word}} - {{English Translation}}*
+_{{English Meaning}}_
+{{IPA}} • {{Part Of Speech}} • {{Gender}} • {{Plural Form}}
 
-*8. [German Word] - [English Translation]*
-*[English Meaning]*
-([IPA], [Part Of Speech], [Gender], [Plural Form])
+*8. {{German Word}} - {{English Translation}}*
+_{{English Meaning}}_
+{{IPA}} • {{Part Of Speech}} • {{Gender}} • {{Plural Form}}
 
-*9. [German Word] - [English Translation]*
-*[English Meaning]*
-([IPA], [Part Of Speech], [Gender], [Plural Form])
+*9. {{German Word}} - {{English Translation}}*
+_{{English Meaning}}_
+{{IPA}} • {{Part Of Speech}} • {{Gender}} • {{Plural Form}}
 
-*10. [German Word] - [English Translation]*
-*[English Meaning]*
-([IPA], [Part Of Speech], [Gender], [Plural Form])
+*10. {{German Word}} - {{English Translation}}*
+_{{English Meaning}}_
+{{IPA}} • {{Part Of Speech}} • {{Gender}} • {{Plural Form}}
