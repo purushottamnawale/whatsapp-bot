@@ -23,12 +23,13 @@ const rawPrompt = (() => {
         return '';
     }
 })();
-const PROMPT = rawPrompt
+const defaultPrompt = rawPrompt
     .replaceAll("{{TODAY_DATE}}", formatTodayDateWithoutYear())
     .replaceAll("{{TODAY_FULL_DATE}}", formatTodayFullDate());
-const message = args.length > 1
-    ? args.slice(1).join(' ')
-    : (PROMPT || 'Hello from terminal');
+
+const PROMPT = args.length > 1
+    ? args.slice(1).join(" ")
+    : defaultPrompt || "Hello from terminal";
 
 const WA_HEADLESS = String(process.env.WA_HEADLESS || 'true').toLowerCase() !== 'false';
 const WA_AUTH_CLIENT_ID = process.env.WA_AUTH_CLIENT_ID || '';
@@ -197,13 +198,7 @@ async function generateAiMessage(promptText) {
                         role: 'user',
                         parts: [
                             {
-                                text: [
-                                    'Create WhatsApp-ready output based on the user prompt.',
-                                    'If the prompt asks for a vocabulary list, strictly follow it and keep exactly requested count and fields.',
-                                    'If a vocabulary list is requested, use different words each time and do not repeat excluded words.',
-                                    'If no strict format is requested, write a short friendly message in simple English.',
-                                    `Topic or prompt: ${promptText}`
-                                ].join('\n')
+                                text: promptText
                             }
                         ]
                     }
@@ -295,8 +290,8 @@ function bindEvents(client) {
             const chatId = target.chatId;
 
             const generated = WA_USE_AI_RESPONSE
-                ? await generateAiMessage(message)
-                : { text: message, isAi: false, reason: 'WA_USE_AI_RESPONSE is false' };
+                ? await generateAiMessage(PROMPT)
+                : { text: PROMPT, isAi: false, reason: 'WA_USE_AI_RESPONSE is false' };
 
             const outgoingMessage = generated.text;
             console.log(`Outgoing message text:\n---\n${outgoingMessage}\n---`);
