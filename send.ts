@@ -44,6 +44,7 @@ const WA_PUPPETEER_LAUNCH_TIMEOUT_MS = parsePositiveInt(process.env.WA_PUPPETEER
 const WA_PROTOCOL_TIMEOUT_MS = parsePositiveInt(process.env.WA_PROTOCOL_TIMEOUT_MS, 120000);
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
+const BACKUP_GEMINI_MODEL = (process.env.BACKUP_GEMINI_MODEL || '').trim();
 
 if (!WA_SEND_TO) {
     console.error('Missing WA_SEND_TO (or first CLI argument).');
@@ -173,16 +174,8 @@ function extractCandidateText(payload) {
         .trim();
 }
 
-async function generateAiMessage(promptText) {
-    if (!GEMINI_API_KEY) {
-        return {
-            text: WA_AI_FAILURE_MESSAGE,
-            isAi: false,
-            reason: 'GEMINI_API_KEY is not set'
-        };
-    }
-
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(GEMINI_MODEL)}:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`;
+async function generateWithGeminiModel(promptText, modelName) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modelName)}:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`;
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), WA_AI_TIMEOUT_MS);
 
@@ -212,32 +205,58 @@ async function generateAiMessage(promptText) {
 
         const payload: any = await response.json();
         if (!response.ok) {
-            const errText = `Gemini API failed: ${response.status} ${util.inspect(payload, { depth: 3 })}`;
+            const errText = `Gemini API failed for ${modelName}: ${response.status} ${util.inspect(payload, { depth: 3 })}`;
             console.error(errText);
             return {
-                text: WA_AI_FAILURE_MESSAGE,
-                isAi: false,
+                text: '',
                 reason: `Gemini API error ${response.status}`
             };
         }
 
         const aiText = extractCandidateText(payload);
         if (!aiText) {
-            console.error('Gemini returned empty content, using plain message.');
+            console.error(`Gemini model ${modelName} returned empty content.`);
             return {
-                text: WA_AI_FAILURE_MESSAGE,
-                isAi: false,
+                text: '',
                 reason: 'Gemini returned empty content'
             };
         }
 
-        return { text: aiText, isAi: true, reason: '' };
+        return { text: aiText, reason: '' };
     } catch (err: any) {
-        console.error('AI generation failed, using plain message:', err?.message || err);
-        return { text: WA_AI_FAILURE_MESSAGE, isAi: false, reason: err?.message || 'AI generation failed' };
+        console.error(`AI generation failed for ${modelName}:`, err?.message || err);
+        return { text: '', reason: err?.message || 'AI generation failed' };
     } finally {
         clearTimeout(timeout);
     }
+}
+
+async function generateAIMessage(promptText) {
+    if (!GEMINI_API_KEY) {
+        return {
+            text: WA_AI_FAILURE_MESSAGE,
+            isAi: false,
+            reason: 'GEMINI_API_KEY is not set'
+        };
+    }
+
+    const models = [GEMINI_MODEL, BACKUP_GEMINI_MODEL].filter((modelName, index, allModels) => (
+        modelName && allModels.indexOf(modelName) === index
+    ));
+    let lastReason = 'AI generation failed';
+
+    for (const modelName of models) {
+        const generated = await generateWithGeminiModel(promptText, modelName);
+        if (generated.text) {
+            return { text: generated.text, isAi: true, reason: '' };
+        }
+        lastReason = generated.reason;
+        if (modelName === GEMINI_MODEL && models.length > 1) {
+            console.error(`Primary Gemini model failed, trying backup model: ${BACKUP_GEMINI_MODEL}`);
+        }
+    }
+
+    return { text: WA_AI_FAILURE_MESSAGE, isAi: false, reason: lastReason };
 }
 
 
@@ -290,7 +309,7 @@ function bindEvents(client) {
             const chatId = target.chatId;
 
             const generated = WA_USE_AI_RESPONSE
-                ? await generateAiMessage(PROMPT)
+                ? await generateAIMessage(PROMPT)
                 : { text: PROMPT, isAi: false, reason: 'WA_USE_AI_RESPONSE is false' };
 
             const outgoingMessage = generated.text;
