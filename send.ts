@@ -1,4 +1,4 @@
-import { formatTodayDateWithoutYear, formatTodayFullDate, isLikelyPhoneTarget, normalizeNumber, parseBoolean, parsePositiveInt } from './methods';
+import { clearStaleBrowserLock, formatTodayDateWithoutYear, formatTodayFullDate, isLikelyPhoneTarget, normalizeNumber, parseBoolean, parsePositiveInt } from './methods';
 
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
@@ -372,6 +372,11 @@ function bindEvents(client) {
         }
     });
 }
+
+// Clear any browser/lock left behind by a previous crashed run before launching.
+// LocalAuth stores the Chromium profile at <dataPath>/session[-<clientId>].
+const sessionDir = path.resolve(__dirname, '.wwebjs_auth', WA_AUTH_CLIENT_ID ? `session-${WA_AUTH_CLIENT_ID}` : 'session');
+clearStaleBrowserLock(sessionDir);
 
 const client = createClient();
 bindEvents(client);

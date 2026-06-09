@@ -69,6 +69,31 @@ export function parsePositiveInt(rawValue: unknown, fallback: number): number {
 }
 
 
+export function clearStaleBrowserLock(sessionDir: string): void {
+    // On the Ubuntu server a crashed/hung run leaves a live Chromium holding the
+    // profile's SingletonLock, so the next launch fails with "browser is already
+    // running". Kill any Chromium still bound to this profile, then drop the lock
+    // files Chromium leaves behind. Safe to call at startup: this fresh process owns
+    // no browser yet, so anything matching the profile is a leftover from before.
+    const { execSync } = require('child_process');
+    const fs = require('fs');
+    const path = require('path');
+
+    try {
+        execSync(`pkill -9 -f ${JSON.stringify('--user-data-dir=' + sessionDir)}`, { stdio: 'ignore' });
+    } catch {
+        // pkill exits non-zero when nothing matched; that is the normal, healthy case.
+    }
+
+    for (const name of ['SingletonLock', 'SingletonCookie', 'SingletonSocket', 'DevToolsActivePort']) {
+        try {
+            fs.rmSync(path.join(sessionDir, name), { force: true });
+        } catch {
+            // Best effort: a missing/locked file should never block startup.
+        }
+    }
+}
+
 export function formatTodayDateWithoutYear(): string {
     const today = new Intl.DateTimeFormat("en-GB", {
         day: "numeric",
