@@ -10,9 +10,9 @@ Do NOT calculate, infer, estimate, replace, modify, or reinterpret the provided 
 
 Choose a topic related to an event, discovery, historical occurrence, anniversary, celebration, notable birth, notable death, or interesting fact that happened on this exact calendar date in history.
 
-Before selecting the topic, verify that it genuinely occurred on {{TODAY_DATE}} (same day and month).
+Before selecting the topic, verify that it genuinely occurred on {{TODAY_DATE}}.
 
-If multiple relevant topics exist, choose the single most historically significant topic based on:
+If multiple relevant topics exist, choose the single most historically significant topic for the world as a whole. Assess significance from a global perspective, not a national, regional, cultural, or ideological one, using:
 - Global impact
 - Number of people affected
 - Long-term historical influence
@@ -24,7 +24,7 @@ First, provide a brief English context paragraph with relevant emojis explaining
 
 Then write exactly 5 complete German sentences about the topic.
 
-Directly below each German sentence, provide its exact English translation, preserving the meaning sentence-by-sentence.
+Directly below each German sentence, provide its accurate English translation.
 
 Afterward, identify the 10 most difficult German words that appear in the German sentences.
 
