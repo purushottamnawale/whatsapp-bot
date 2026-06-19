@@ -35,21 +35,21 @@ const WA_HEADLESS = String(process.env.WA_HEADLESS || 'true').toLowerCase() !== 
 const WA_AUTH_CLIENT_ID = process.env.WA_AUTH_CLIENT_ID || '';
 const WA_USE_AI_RESPONSE = parseBoolean(process.env.WA_USE_AI_RESPONSE, true);
 const WA_KEEP_ALIVE = parseBoolean(process.env.WA_KEEP_ALIVE, true);
-const WA_AI_TIMEOUT_MS = parsePositiveInt(process.env.WA_AI_TIMEOUT_MS, 60000);
+const GEMINI_TIMEOUT_MS = parsePositiveInt(process.env.GEMINI_TIMEOUT_MS, 60000);
 const GEMINI_PRIMARY_ATTEMPTS = parsePositiveInt(process.env.GEMINI_PRIMARY_ATTEMPTS, 5);
 const GEMINI_BACKUP_ATTEMPTS = parsePositiveInt(process.env.GEMINI_BACKUP_ATTEMPTS, 2);
 const GEMINI_RETRY_DELAY_MS = parsePositiveInt(process.env.GEMINI_RETRY_DELAY_MS, 60000);
 const WA_SEND_ATTEMPTS = parsePositiveInt(process.env.WA_SEND_ATTEMPTS, 4);
 const WA_SEND_RETRY_DELAY_MS = parsePositiveInt(process.env.WA_SEND_RETRY_DELAY_MS, 3000);
-const DEFAULT_AI_FAILURE_MESSAGE = 'AI is temporarily unavailable. Please try again later.';
-const WA_AI_FAILURE_MESSAGE = (process.env.WA_AI_FAILURE_MESSAGE || DEFAULT_AI_FAILURE_MESSAGE).trim() || DEFAULT_AI_FAILURE_MESSAGE;
+const DEFAULT_GEMINI_FAILURE_MESSAGE = 'AI is temporarily unavailable. Please try again later.';
+const GEMINI_FAILURE_MESSAGE = (process.env.GEMINI_FAILURE_MESSAGE || DEFAULT_GEMINI_FAILURE_MESSAGE).trim() || DEFAULT_GEMINI_FAILURE_MESSAGE;
 const WA_INIT_DEBUG = parseBoolean(process.env.WA_INIT_DEBUG, true);
 const WA_PUPPETEER_EXECUTABLE_PATH = (process.env.WA_PUPPETEER_EXECUTABLE_PATH || process.env.PUPPETEER_EXECUTABLE_PATH || '').trim();
 const WA_PUPPETEER_LAUNCH_TIMEOUT_MS = parsePositiveInt(process.env.WA_PUPPETEER_LAUNCH_TIMEOUT_MS, 120000);
 const WA_PROTOCOL_TIMEOUT_MS = parsePositiveInt(process.env.WA_PROTOCOL_TIMEOUT_MS, 120000);
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
-const BACKUP_GEMINI_MODEL = (process.env.BACKUP_GEMINI_MODEL || '').trim();
+const GEMINI_BACKUP_MODEL = (process.env.GEMINI_BACKUP_MODEL || '').trim();
 
 if (!WA_SEND_TO) {
     console.error('Missing WA_SEND_TO (or first CLI argument).');
@@ -182,7 +182,7 @@ function extractCandidateText(payload) {
 async function generateWithGeminiModel(promptText, modelName) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(modelName)}:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`;
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), WA_AI_TIMEOUT_MS);
+    const timeout = setTimeout(() => controller.abort(), GEMINI_TIMEOUT_MS);
 
     try {
         const response = await fetch(url, {
@@ -239,18 +239,18 @@ async function generateWithGeminiModel(promptText, modelName) {
 async function generateAIMessage(promptText) {
     if (!GEMINI_API_KEY) {
         return {
-            text: WA_AI_FAILURE_MESSAGE,
+            text: GEMINI_FAILURE_MESSAGE,
             isAi: false,
             reason: 'GEMINI_API_KEY is not set'
         };
     }
 
     // Try the primary model several times, then fall back to the backup model.
-    // Each attempt has its own timeout (WA_AI_TIMEOUT_MS) so a single slow/stuck
+    // Each attempt has its own timeout (GEMINI_TIMEOUT_MS) so a single slow/stuck
     // request cannot block the whole retry budget.
     const attemptPlan = [
         { modelName: GEMINI_MODEL, attempts: GEMINI_PRIMARY_ATTEMPTS },
-        { modelName: BACKUP_GEMINI_MODEL, attempts: GEMINI_BACKUP_ATTEMPTS }
+        { modelName: GEMINI_BACKUP_MODEL, attempts: GEMINI_BACKUP_ATTEMPTS }
     ].filter((entry, index, all) => (
         // Skip empty/duplicate model names so we never retry the same model twice unintentionally.
         entry.modelName && entry.attempts > 0 && all.findIndex((e) => e.modelName === entry.modelName) === index
@@ -280,7 +280,7 @@ async function generateAIMessage(promptText) {
         }
     }
 
-    return { text: WA_AI_FAILURE_MESSAGE, isAi: false, reason: lastReason };
+    return { text: GEMINI_FAILURE_MESSAGE, isAi: false, reason: lastReason };
 }
 
 // Send a message with several retries and back-off. WhatsApp Web's sendMessage can
