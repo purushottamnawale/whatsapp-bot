@@ -35,7 +35,12 @@ const WA_HEADLESS = String(process.env.WA_HEADLESS || 'true').toLowerCase() !== 
 const WA_AUTH_CLIENT_ID = process.env.WA_AUTH_CLIENT_ID || '';
 const WA_USE_AI_RESPONSE = parseBoolean(process.env.WA_USE_AI_RESPONSE, true);
 const WA_KEEP_ALIVE = parseBoolean(process.env.WA_KEEP_ALIVE, true);
-const WA_AI_TIMEOUT_MS = parsePositiveInt(process.env.WA_AI_TIMEOUT_MS, 20000);
+const WA_AI_TIMEOUT_MS = parsePositiveInt(process.env.WA_AI_TIMEOUT_MS, 60000);
+const GEMINI_PRIMARY_ATTEMPTS = parsePositiveInt(process.env.GEMINI_PRIMARY_ATTEMPTS, 5);
+const GEMINI_BACKUP_ATTEMPTS = parsePositiveInt(process.env.GEMINI_BACKUP_ATTEMPTS, 2);
+const GEMINI_RETRY_DELAY_MS = parsePositiveInt(process.env.GEMINI_RETRY_DELAY_MS, 60000);
+const WA_SEND_ATTEMPTS = parsePositiveInt(process.env.WA_SEND_ATTEMPTS, 4);
+const WA_SEND_RETRY_DELAY_MS = parsePositiveInt(process.env.WA_SEND_RETRY_DELAY_MS, 3000);
 const DEFAULT_AI_FAILURE_MESSAGE = 'AI is temporarily unavailable. Please try again later.';
 const WA_AI_FAILURE_MESSAGE = (process.env.WA_AI_FAILURE_MESSAGE || DEFAULT_AI_FAILURE_MESSAGE).trim() || DEFAULT_AI_FAILURE_MESSAGE;
 const WA_INIT_DEBUG = parseBoolean(process.env.WA_INIT_DEBUG, true);
@@ -240,27 +245,67 @@ async function generateAIMessage(promptText) {
         };
     }
 
-    const models = [GEMINI_MODEL, BACKUP_GEMINI_MODEL].filter((modelName, index, allModels) => (
-        modelName && allModels.indexOf(modelName) === index
+    // Try the primary model several times, then fall back to the backup model.
+    // Each attempt has its own timeout (WA_AI_TIMEOUT_MS) so a single slow/stuck
+    // request cannot block the whole retry budget.
+    const attemptPlan = [
+        { modelName: GEMINI_MODEL, attempts: GEMINI_PRIMARY_ATTEMPTS },
+        { modelName: BACKUP_GEMINI_MODEL, attempts: GEMINI_BACKUP_ATTEMPTS }
+    ].filter((entry, index, all) => (
+        // Skip empty/duplicate model names so we never retry the same model twice unintentionally.
+        entry.modelName && entry.attempts > 0 && all.findIndex((e) => e.modelName === entry.modelName) === index
     ));
+
     let lastReason = 'AI generation failed';
 
-    for (const modelName of models) {
-        const generated = await generateWithGeminiModel(promptText, modelName);
-        if (generated.text) {
-            return { text: generated.text, isAi: true, reason: '' };
+    for (const { modelName, attempts } of attemptPlan) {
+        const isBackup = modelName !== GEMINI_MODEL;
+        if (isBackup) {
+            console.error(`Primary Gemini model failed, trying backup model: ${modelName}`);
         }
-        lastReason = generated.reason;
-        if (modelName === GEMINI_MODEL && models.length > 1) {
-            console.error(`Primary Gemini model failed, trying backup model: ${BACKUP_GEMINI_MODEL}`);
+
+        for (let attempt = 1; attempt <= attempts; attempt++) {
+            const generated = await generateWithGeminiModel(promptText, modelName);
+            if (generated.text) {
+                return { text: generated.text, isAi: true, reason: '' };
+            }
+
+            lastReason = generated.reason;
+            console.error(`Gemini model ${modelName} attempt ${attempt}/${attempts} failed: ${generated.reason}`);
+
+            // Brief back-off before retrying so we do not hammer an overloaded model.
+            if (attempt < attempts && GEMINI_RETRY_DELAY_MS > 0) {
+                await new Promise((resolve) => setTimeout(resolve, GEMINI_RETRY_DELAY_MS));
+            }
         }
     }
 
     return { text: WA_AI_FAILURE_MESSAGE, isAi: false, reason: lastReason };
 }
 
-
-
+// Send a message with several retries and back-off. WhatsApp Web's sendMessage can
+// throw transiently right after 'ready' (browser/session not fully settled), so a
+// single retry is not enough — that is how messages silently fail to deliver.
+async function sendWithRetry(client, chatId, messageText) {
+    let lastErr: any;
+    for (let attempt = 1; attempt <= WA_SEND_ATTEMPTS; attempt++) {
+        try {
+            const sent = await client.sendMessage(chatId, messageText);
+            if (attempt > 1) {
+                console.log(`Send succeeded on attempt ${attempt}/${WA_SEND_ATTEMPTS}.`);
+            }
+            return sent;
+        } catch (err: any) {
+            lastErr = err;
+            console.error(`Send attempt ${attempt}/${WA_SEND_ATTEMPTS} failed: ${err?.message || err}`);
+            logDebug('Send error detail:', err?.stack || util.inspect(err, { depth: 5 }));
+            if (attempt < WA_SEND_ATTEMPTS && WA_SEND_RETRY_DELAY_MS > 0) {
+                await new Promise((resolve) => setTimeout(resolve, WA_SEND_RETRY_DELAY_MS));
+            }
+        }
+    }
+    throw lastErr || new Error('sendMessage failed after retries');
+}
 
 function bindEvents(client) {
     client.on('change_state', (state) => {
@@ -315,17 +360,7 @@ function bindEvents(client) {
             const outgoingMessage = generated.text;
             console.log(`Outgoing message text:\n---\n${outgoingMessage}\n---`);
 
-            let sentMessage;
-            try {
-                sentMessage = await client.sendMessage(chatId, outgoingMessage);
-            } catch (primaryErr: any) {
-                console.error('Primary send failed, retrying after short delay...');
-                await new Promise((resolve) => setTimeout(resolve, 2000));
-                sentMessage = await client.sendMessage(chatId, outgoingMessage);
-                if (primaryErr) {
-                    logDebug('Primary error detail:', primaryErr.stack || util.inspect(primaryErr, { depth: 5 }));
-                }
-            }
+            const sentMessage = await sendWithRetry(client, chatId, outgoingMessage);
 
             hasSent = true;
             console.log('Message sent securely to', target.label);
